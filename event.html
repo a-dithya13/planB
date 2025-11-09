@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event-Scheduler</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="scheduler-container">
+        
+        <div class="header">
+        <h1>Event Scheduler</h1>
+        <button id="logoutBtn" class="logout-btn">Logout</button>
+        </div>
+        <div class="event-form">
+            <h2>Create New Event</h2>
+            <input type="text" id="eventTitle" placeholder="Event Title">
+            <input type="date" id="eventDate">
+            <input type="time" id="eventTime">
+            <button id="addEventBtn">Add Event</button>
+        </div>
+        <div class="event-list">
+            <h2>Your Events</h2>
+            <ul id="eventsList"></ul>
+        </div>
+    </div>
+    <script src="scheduler.js"></script>
+</body>
+</html>
