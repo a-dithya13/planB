@@ -1,10 +1,12 @@
-// Get current user; if not logged in → redirect
+// Get current user; redirect if not logged in
 const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
 if (!currentUser) {
     window.location.href = 'index.html';
+} else {
+    console.log("✅ Current user email:", currentUser.email); // Debug log
 }
 
-//  Get  elements
+// Get elements
 const logoutBtn = document.getElementById('logoutBtn');
 const addEventBtn = document.getElementById('addEventBtn');
 const titelInput = document.getElementById('eventTitle'); // original name kept
@@ -12,27 +14,27 @@ const dateInput = document.getElementById('eventDate');
 const timeInput = document.getElementById('eventTime');
 const eventsList = document.getElementById('eventsList');
 
-//  Logout button
-logoutBtn.addEventListener('click', function() {
+// Logout button
+logoutBtn.addEventListener('click', function () {
     sessionStorage.removeItem('currentUser');
     alert('Logged out successfully!');
     window.location.href = 'index.html';
 });
 
-//  Add Event button
-addEventBtn.addEventListener('click', function() {
+// Add Event button
+addEventBtn.addEventListener('click', function () {
     const title = titelInput.value.trim();
     const date = dateInput.value;
     const time = timeInput.value;
 
-    if (title === '' || date === '' || time === '') {
+    if (!title || !date || !time) {
         alert('Please fill all fields.');
         return;
     }
 
     const eventDateTime = new Date(date + 'T' + time);
     const now = new Date();
-    if (eventDateTime < now) {
+    if (eventDateTime <= now) {
         alert('Event date and time must be in the future.');
         return;
     }
@@ -42,18 +44,23 @@ addEventBtn.addEventListener('click', function() {
 
     const newEvent = {
         id: Date.now(),
-        userId: currentUser.id,  //  fixed property namesca
+        userId: currentUser.id,
         title: title,
         date: date,
         time: time,
-        notified10min: false //  initialize
+        notified10min: false
     };
 
     events.push(newEvent);
     localStorage.setItem('events', JSON.stringify(events));
 
-    sendEmailReminder(newEvent); //  NOW placed correctly
+    // Debug log before sending email
+    console.log("📩 Sending email reminder for event:", newEvent);
+    console.log("Current user email:", currentUser.email);
 
+    sendEmailReminder(newEvent);
+
+    // Reset inputs
     titelInput.value = '';
     dateInput.value = '';
     timeInput.value = '';
@@ -62,36 +69,35 @@ addEventBtn.addEventListener('click', function() {
     displayEvents();
 });
 
-// ✅ EmailJS - Send Reminder Email
+// EmailJS - Send Reminder Email
 function sendEmailReminder(event) {
-    // Debug: check current user and event
-    console.log("Sending email to:", currentUser.email);
-    console.log("Event details:", event);
+    if (!currentUser.email) {
+        console.error("❌ No email found for current user. Cannot send reminder.");
+        return;
+    }
 
     emailjs.send("service_8hv6frq", "template_qw2inin", {
         event_title: event.title,
         event_time: `${event.date} ${event.time}`,
-        to_email: currentUser.email // must match your EmailJS template variable
+        to_email: currentUser.email
     })
-    .then((response) => {
+    .then(response => {
         console.log("✅ EmailJS Success:", response);
         alert("Reminder email scheduled successfully!");
     })
-    .catch((err) => {
+    .catch(err => {
         console.error("❌ EmailJS Error:", err);
         alert("Email failed to send. Check console for details.");
     });
 }
 
-// ✅ Display Events on screen
+// Display Events on screen
 function displayEvents() {
     const eventsJSON = localStorage.getItem('events');
     const events = eventsJSON ? JSON.parse(eventsJSON) : [];
-
     const userEvents = events.filter(e => e.userId === currentUser.id);
 
     eventsList.innerHTML = '';
-
     if (userEvents.length === 0) {
         eventsList.innerHTML = '<li class="empty-message">No events yet. Add one above!</li>';
         return;
@@ -112,24 +118,22 @@ function displayEvents() {
     addDeleteListeners();
 }
 
-//  Delete event
+// Delete Event
 function deleteEvent(eventId) {
     const eventsJSON = localStorage.getItem('events');
     const events = eventsJSON ? JSON.parse(eventsJSON) : [];
-
     const updatedEvents = events.filter(e => e.id !== eventId);
 
     localStorage.setItem('events', JSON.stringify(updatedEvents));
-
     alert('Event deleted!');
     displayEvents();
 }
 
-//  Add delete button event listeners
+// Add delete button listeners
 function addDeleteListeners() {
     const deleteBtns = document.querySelectorAll('.delete-btn');
     deleteBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
             const eventId = parseInt(this.getAttribute('data-id'));
             if (confirm('Are you sure you want to delete this event?')) {
                 deleteEvent(eventId);
@@ -137,16 +141,16 @@ function addDeleteListeners() {
         });
     });
 }
-//  Notification: checks upcoming events every 30 seconds
+
+// Notification: checks upcoming events every 30 seconds
 function checkUpcomingEvents() {
     const eventsJSON = localStorage.getItem('events');
     const events = eventsJSON ? JSON.parse(eventsJSON) : [];
-
     const now = new Date();
 
     events.forEach(event => {
         if (event.userId !== currentUser.id) return;
-        
+
         const eventTime = new Date(event.date + "T" + event.time);
         const diffMinutes = Math.round((eventTime - now) / 60000);
 
@@ -159,10 +163,9 @@ function checkUpcomingEvents() {
     localStorage.setItem('events', JSON.stringify(events));
 }
 
-//  Browser + alert notification
+// Browser + alert notification
 function showReminderNotification(title, time) {
     const timeStr = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
     alert(`Reminder: Only 10 minutes left for "${title}" at ${timeStr}`);
 
     if (Notification.permission === "granted") {
@@ -172,11 +175,11 @@ function showReminderNotification(title, time) {
     }
 }
 
+// Request notification permission if not granted
 if (Notification.permission !== "granted") {
     Notification.requestPermission();
 }
 
+// Start checking events
 setInterval(checkUpcomingEvents, 30000);
-
-// Initial load
 displayEvents();
