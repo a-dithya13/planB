@@ -1,10 +1,10 @@
-// ✅ Get current user; if not logged in → redirect
+// Get current user; if not logged in → redirect
 const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
 if (!currentUser) {
     window.location.href = 'index.html';
 }
 
-// ✅ Get DOM elements
+//  Get  elements
 const logoutBtn = document.getElementById('logoutBtn');
 const addEventBtn = document.getElementById('addEventBtn');
 const titelInput = document.getElementById('eventTitle'); // original name kept
@@ -12,14 +12,14 @@ const dateInput = document.getElementById('eventDate');
 const timeInput = document.getElementById('eventTime');
 const eventsList = document.getElementById('eventsList');
 
-// ✅ Logout button
+//  Logout button
 logoutBtn.addEventListener('click', function() {
     sessionStorage.removeItem('currentUser');
     alert('Logged out successfully!');
     window.location.href = 'index.html';
 });
 
-// ✅ Add Event button
+//  Add Event button
 addEventBtn.addEventListener('click', function() {
     const title = titelInput.value.trim();
     const date = dateInput.value;
@@ -42,17 +42,17 @@ addEventBtn.addEventListener('click', function() {
 
     const newEvent = {
         id: Date.now(),
-        userId: currentUser.id,  // ✅ fixed property name
+        userId: currentUser.id,  //  fixed property name
         title: title,
         date: date,
         time: time,
-        notified10min: false // ✅ initialize
+        notified10min: false //  initialize
     };
 
     events.push(newEvent);
     localStorage.setItem('events', JSON.stringify(events));
 
-    sendEmailReminder(newEvent); // ✅ NOW placed correctly
+    sendEmailReminder(newEvent); //  NOW placed correctly
 
     titelInput.value = '';
     dateInput.value = '';
@@ -64,14 +64,20 @@ addEventBtn.addEventListener('click', function() {
 
 // ✅ EmailJS - Send Reminder Email
 function sendEmailReminder(event) {
+    console.log("Sending email for event:", event); // debug
+
     emailjs.send("service_8hv6frq", "template_qw2inin", {
         event_title: event.title,
         event_time: `${event.date} ${event.time}`,
-        to_email: currentUser.email // ✅ sending to logged user
-    }).then(() => {
-        console.log("✅ Reminder email scheduled!");
-    }).catch(err => {
-        console.error("❌ Email send failed:", err);
+        to_email: currentUser.email // must match your template variable
+    })
+    .then((response) => {
+        console.log("✅ EmailJS Success:", response);
+        alert("Reminder email scheduled!");
+    })
+    .catch((err) => {
+        console.error("❌ EmailJS Error:", err);
+        alert("Email failed to send. Check console for details.");
     });
 }
 
@@ -104,7 +110,7 @@ function displayEvents() {
     addDeleteListeners();
 }
 
-// ✅ Delete event
+//  Delete event
 function deleteEvent(eventId) {
     const eventsJSON = localStorage.getItem('events');
     const events = eventsJSON ? JSON.parse(eventsJSON) : [];
@@ -117,7 +123,7 @@ function deleteEvent(eventId) {
     displayEvents();
 }
 
-// ✅ Add delete button event listeners
+//  Add delete button event listeners
 function addDeleteListeners() {
     const deleteBtns = document.querySelectorAll('.delete-btn');
     deleteBtns.forEach(btn => {
@@ -129,8 +135,7 @@ function addDeleteListeners() {
         });
     });
 }
-
-// ✅ Notification: checks upcoming events every 30 seconds
+//  Notification: checks upcoming events every 30 seconds
 function checkUpcomingEvents() {
     const eventsJSON = localStorage.getItem('events');
     const events = eventsJSON ? JSON.parse(eventsJSON) : [];
@@ -152,7 +157,7 @@ function checkUpcomingEvents() {
     localStorage.setItem('events', JSON.stringify(events));
 }
 
-// ✅ Browser + alert notification
+//  Browser + alert notification
 function showReminderNotification(title, time) {
     const timeStr = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
@@ -171,5 +176,5 @@ if (Notification.permission !== "granted") {
 
 setInterval(checkUpcomingEvents, 30000);
 
-// ✅ Initial load
+// Initial load
 displayEvents();
