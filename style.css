@@ -1,5 +1,5 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Poppins', sans-serif;
     background:linear-gradient(135deg,#2c3e50, #34495e);
     display: flex;
     justify-content: center;
@@ -52,7 +52,7 @@ input:focus
 button
 {
     width:100%;
-    background-color: #ff6b6b;;
+    background: #f05454;
     color:white;
     padding:12px 20px;
     border:none;
@@ -63,7 +63,7 @@ button
 }
 button:hover
 {
-    background-color:#ee5a6f;
+    background-color:#d94343;
 }
 .hidden {
     display: none !important;
