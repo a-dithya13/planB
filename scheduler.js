@@ -42,7 +42,7 @@ addEventBtn.addEventListener('click', function() {
 
     const newEvent = {
         id: Date.now(),
-        userId: currentUser.id,  //  fixed property name
+        userId: currentUser.id,  //  fixed property namesca
         title: title,
         date: date,
         time: time,
@@ -64,16 +64,18 @@ addEventBtn.addEventListener('click', function() {
 
 // ✅ EmailJS - Send Reminder Email
 function sendEmailReminder(event) {
-    console.log("Sending email for event:", event); // debug
+    // Debug: check current user and event
+    console.log("Sending email to:", currentUser.email);
+    console.log("Event details:", event);
 
     emailjs.send("service_8hv6frq", "template_qw2inin", {
         event_title: event.title,
         event_time: `${event.date} ${event.time}`,
-        to_email: currentUser.email // must match your template variable
+        to_email: currentUser.email // must match your EmailJS template variable
     })
     .then((response) => {
         console.log("✅ EmailJS Success:", response);
-        alert("Reminder email scheduled!");
+        alert("Reminder email scheduled successfully!");
     })
     .catch((err) => {
         console.error("❌ EmailJS Error:", err);
