@@ -82,17 +82,18 @@ function sendEmailReminder(event) {
         event_time: `${event.date} at ${event.time}`
     };
 
-    console.log("📧 Sending with params:", templateParams);
+    console.log("📧 Sending email with params:", templateParams);
 
-    emailjs.send("service_8hv6frq", "template_qw2inin", templateParams)
+    emailjs.send("adithya_123", "template_123", templateParams)
     .then(response => {
         console.log("✅ EmailJS Success:", response);
         alert("Reminder email sent successfully!");
     })
     .catch(err => {
         console.error("❌ EmailJS Error:", err);
-        console.error("Full error details:", JSON.stringify(err));
-        alert("Email failed to send. Check console for details.");
+        console.error("❌ Error Status:", err.status);
+        console.error("❌ Error Text:", err.text);
+        alert(`Email failed: ${err.text || 'Unknown error'}`);
     });
 }
 
