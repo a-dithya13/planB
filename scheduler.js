@@ -76,17 +76,22 @@ function sendEmailReminder(event) {
         return;
     }
 
-    emailjs.send("service_8hv6frq", "template_qw2inin", {
+    const templateParams = {
+        user_email: currentUser.email,
         event_title: event.title,
-        event_time: `${event.date} ${event.time}`,
-        to_email: currentUser.email
-    })
+        event_time: `${event.date} at ${event.time}`
+    };
+
+    console.log("📧 Sending with params:", templateParams);
+
+    emailjs.send("service_8hv6frq", "template_qw2inin", templateParams)
     .then(response => {
         console.log("✅ EmailJS Success:", response);
-        alert("Reminder email scheduled successfully!");
+        alert("Reminder email sent successfully!");
     })
     .catch(err => {
         console.error("❌ EmailJS Error:", err);
+        console.error("Full error details:", JSON.stringify(err));
         alert("Email failed to send. Check console for details.");
     });
 }
